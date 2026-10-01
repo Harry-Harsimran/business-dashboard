@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}KPIs — Business Dashboard{% endblock %}
+{% block content %}
+
+<div class="glass panel">
+  <h3>KPI health check</h3>
+  <div class="sub">Target vs actual across core business metrics</div>
+  <div class="overflow">
+    <table>
+      <tr><th>KPI</th><th>Target</th><th>Actual</th><th>Status</th></tr>
+      {% for k in kpis %}
+      <tr>
+        <td>{{ k.name }}</td>
+        <td>{% if k.unit == '₹' %}₹{{ k.target }}{% else %}{{ k.target }}{{ k.unit }}{% endif %}</td>
+        <td>{% if k.unit == '₹' %}₹{{ k.actual }}{% else %}{{ k.actual }}{{ k.unit }}{% endif %}</td>
+        <td><span class="tag {{ k.status }}">{{ 'On track' if k.status == 'good' else 'Watch' }}</span></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}

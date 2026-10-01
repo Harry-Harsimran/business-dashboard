@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Profit — Business Dashboard{% endblock %}
+{% block content %}
+
+<div class="glass panel">
+  <h3>Profit & Net Margin</h3>
+  <div class="sub">₹ lakh (bars) and margin % (line)</div>
+  <div class="chart-box"><canvas id="profitChart"></canvas></div>
+</div>
+
+<div class="glass panel">
+  <h3>Profit detail</h3>
+  <div class="overflow">
+    <table>
+      <tr><th>Month</th><th>Revenue (₹L)</th><th>Profit (₹L)</th><th>Margin</th></tr>
+      {% for r in monthly %}
+      <tr><td>{{ r.month }}</td><td>{{ r.revenue }}</td><td>{{ r.profit }}</td><td>{{ r.margin_pct }}%</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const monthly = {{ monthly | tojson }};
+new Chart(document.getElementById('profitChart'), {
+  data:{
+    labels: monthly.map(r=>r.month),
+    datasets:[
+      {type:'bar', label:'Profit (₹L)', data: monthly.map(r=>r.profit),
+       backgroundColor:'rgba(139,124,246,0.7)', borderRadius:4, yAxisID:'y'},
+      {type:'line', label:'Margin %', data: monthly.map(r=>r.margin_pct),
+       borderColor:'#f5a623', borderWidth:2.5, pointRadius:0, tension:.35, yAxisID:'y1'}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#9aa4c4', boxWidth:10, usePointStyle:true, pointStyle:'circle'}}},
+    scales:{
+      x:{ticks:{color:'#9aa4c4'}, grid:{display:false}},
+      y:{position:'left', ticks:{color:'#9aa4c4'}, grid:{color:'rgba(255,255,255,0.06)'}},
+      y1:{position:'right', ticks:{color:'#9aa4c4'}, grid:{display:false}}
+    }
+  }
+});
+</script>
+{% endblock %}

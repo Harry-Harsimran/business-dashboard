@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Overview — Business Dashboard{% endblock %}
+{% block content %}
+
+<div class="kpi-grid">
+  <div class="glass kpi">
+    <div class="label">Total Revenue</div>
+    <div class="value">₹{{ summary.total_revenue }} L</div>
+    <div class="delta up">▲ trailing 12 months</div>
+  </div>
+  <div class="glass kpi">
+    <div class="label">Total Profit</div>
+    <div class="value">₹{{ summary.total_profit }} L</div>
+    <div class="delta up">▲ trailing 12 months</div>
+  </div>
+  <div class="glass kpi">
+    <div class="label">Net Margin</div>
+    <div class="value">{{ summary.net_margin }}%</div>
+    <div class="delta">of total revenue</div>
+  </div>
+  <div class="glass kpi">
+    <div class="label">Latest MoM Growth</div>
+    <div class="value">{{ summary.latest_growth }}%</div>
+    <div class="delta {{ 'up' if summary.latest_growth and summary.latest_growth >= 0 else 'down' }}">
+      {{ 'accelerating' if summary.latest_growth and summary.latest_growth >= 0 else 'slowing' }}
+    </div>
+  </div>
+</div>
+
+<div class="glass panel">
+  <h3>Revenue vs Profit — 12 month trend</h3>
+  <div class="sub">Monthly actuals, ₹ lakh</div>
+  <div class="chart-box"><canvas id="trendChart"></canvas></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const monthly = {{ monthly | tojson }};
+const labels = monthly.map(r => r.month);
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {label:'Revenue', data: monthly.map(r=>r.revenue), borderColor:'#2dd4bf',
+       backgroundColor:'rgba(45,212,191,0.15)', fill:true, tension:.35, pointRadius:0, borderWidth:2.5},
+      {label:'Profit', data: monthly.map(r=>r.profit), borderColor:'#8b7cf6',
+       backgroundColor:'rgba(139,124,246,0.12)', fill:true, tension:.35, pointRadius:0, borderWidth:2.5}
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#9aa4c4', boxWidth:10, usePointStyle:true, pointStyle:'circle'}}},
+    scales:{
+      x:{ticks:{color:'#9aa4c4'}, grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{ticks:{color:'#9aa4c4'}, grid:{color:'rgba(255,255,255,0.06)'}}
+    }
+  }
+});
+</script>
+{% endblock %}

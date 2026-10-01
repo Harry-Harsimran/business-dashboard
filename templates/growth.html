@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Growth — Business Dashboard{% endblock %}
+{% block content %}
+
+<div class="glass panel">
+  <h3>Month-over-month growth</h3>
+  <div class="sub">% change in revenue vs prior month</div>
+  <div class="chart-box"><canvas id="growthChart"></canvas></div>
+</div>
+
+<div class="glass panel">
+  <h3>Growth detail</h3>
+  <div class="overflow">
+    <table>
+      <tr><th>Month</th><th>Revenue (₹L)</th><th>MoM Growth</th></tr>
+      {% for r in growth %}
+      <tr>
+        <td>{{ r.month }}</td>
+        <td>{{ r.revenue }}</td>
+        <td>{{ r.mom_growth_pct if r.mom_growth_pct is not none else '—' }}{{ '%' if r.mom_growth_pct is not none }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const growth = {{ growth | tojson }};
+const values = growth.map(r => r.mom_growth_pct);
+new Chart(document.getElementById('growthChart'), {
+  type:'bar',
+  data:{labels: growth.map(r=>r.month), datasets:[{
+    label:'MoM growth %', data: values,
+    backgroundColor: values.map(v => (v ?? 0) >= 0 ? 'rgba(74,222,128,0.7)' : 'rgba(251,113,133,0.7)'),
+    borderRadius:4
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'#9aa4c4'}, grid:{display:false}},
+      y:{ticks:{color:'#9aa4c4'}, grid:{color:'rgba(255,255,255,0.06)'}}
+    }
+  }
+});
+</script>
+{% endblock %}

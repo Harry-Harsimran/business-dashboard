@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Revenue — Business Dashboard{% endblock %}
+{% block content %}
+
+<div class="glass panel">
+  <h3>Monthly Revenue</h3>
+  <div class="sub">₹ lakh, last 12 months</div>
+  <div class="chart-box"><canvas id="revChart"></canvas></div>
+</div>
+
+<div class="glass panel">
+  <h3>Revenue detail</h3>
+  <div class="overflow">
+    <table>
+      <tr><th>Month</th><th>Revenue (₹L)</th><th>Cost (₹L)</th></tr>
+      {% for r in monthly %}
+      <tr><td>{{ r.month }}</td><td>{{ r.revenue }}</td><td>{{ r.cost }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const monthly = {{ monthly | tojson }};
+new Chart(document.getElementById('revChart'), {
+  type:'bar',
+  data:{labels: monthly.map(r=>r.month), datasets:[{
+    label:'Revenue', data: monthly.map(r=>r.revenue),
+    backgroundColor:'rgba(45,212,191,0.7)', borderRadius:4
+  }]},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'#9aa4c4'}, grid:{display:false}},
+      y:{ticks:{color:'#9aa4c4'}, grid:{color:'rgba(255,255,255,0.06)'}}
+    }
+  }
+});
+</script>
+{% endblock %}
